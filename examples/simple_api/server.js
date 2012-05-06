@@ -55,8 +55,9 @@ io.configure( function(){
 	
 });
 
-// fake ids for create
-var id = 0;
+// Simple messages collection
+var ids = 0;
+var messages = {};
 
 io.of('/messages').on( 'connection', function( socket ){
 	
@@ -64,12 +65,15 @@ io.of('/messages').on( 'connection', function( socket ){
 		
 		console.log( 'create', arguments );
 		
-		if( typeof errors !== 'undefined' ){
-			return callback( errors );
-		}
+		var errors = [];
+		var message = data.attributes;
+		message.id = ids;
+		messages[ids] = message;
+		ids++;
 		
-		data.attributes.id = id;
-		id++;
+		if( errors.length > 0 )
+			return callback( errors );
+		
 		callback( data );
 		io.of('/messages').emit( 'create', data );
 		
@@ -77,13 +81,36 @@ io.of('/messages').on( 'connection', function( socket ){
 	
 	socket.on( 'read', function( data, callback ){
 		
-		console.log( 'read', arguments );
+		console.log( 'read', messages );
+		
+		var errors = [];
+		var id = data.id;
+		if( id ){
+			var message = messages[id];
+			data.attributes = message;
+		}
+		else {
+			var messages_array = [];
+			for( i in messages )
+				messages_array.push( messages[i] );
+			data.attributes = messages_array;
+		}
+		
+		if( errors.length > 0 )
+			return callback( errors );
+		
+		callback( data );
 		
 	});
 	
 	socket.on( 'update', function( data, callback ){
 		
 		console.log( 'update', arguments );
+		
+		var errors = [];
+		var id = data.id;
+		var message = messages[id];
+		message = data.attributes;
 		
 		callback( data );
 		io.of('/messages').emit( 'update', data );
@@ -93,6 +120,13 @@ io.of('/messages').on( 'connection', function( socket ){
 	socket.on( 'delete', function( data, callback ){
 		
 		console.log( 'delete', arguments );
+		
+		var errors = [];
+		var id = data.id;
+		delete messages[id];
+		
+		callback( data );
+		io.of('/messages').emit( 'delete', data );
 		
 	});
 	

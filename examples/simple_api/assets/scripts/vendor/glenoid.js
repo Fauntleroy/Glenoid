@@ -74,7 +74,7 @@
 			
 			var attributes;
 			
-			// Handle both `("key", value)` and `({key: value})` -style calls.
+			// Handle both `("key", vaclue)` and `({key: value})` -style calls.
 			if( _.isObject( key ) || key === null ){
 				attributes = key;
 				options = value;
@@ -89,7 +89,7 @@
 				: {};
 			
 			options.method = 'socket.io';
-			console.log( options );
+			
 			return this.save( attributes, options );
 			
 		},
@@ -156,7 +156,7 @@
 			var id = data.id;
 			var attributes = data.attributes;
 			var model = this.get( id );
-			console.log( arguments );
+			
 			model.set( attributes );
 			
 		},
@@ -193,66 +193,6 @@
 			
 			return this.create( attributes, options );
 			
-		},
-		
-		// Shortcut to 'push' via socket
-		socketPush: function( model, options ){
-			
-			if( !options )
-				var options = {};
-			
-			options.method = 'socket.io';
-			
-			return this.push( model, options );
-			
-		},
-		
-		// Shortcut to 'pop' via socket
-		socketPop: function( options ){
-			
-			if( !options )
-				var options = {};
-			
-			options.method = 'socket.io';
-			
-			return this.pop( options );
-			
-		},
-		
-		// Shortcut to 'unshift' via socket
-		socketUnshift: function( model, options ){
-			
-			if( !options )
-				var options = {};
-			
-			options.method = 'socket.io';
-			
-			return this.unshift( model, options );
-			
-		},
-		
-		// Shortcut to 'shift' via socket
-		socketShift: function( options ){
-			
-			if( !options )
-				var options = {};
-			
-			options.method = 'socket.io';
-			
-			return this.shift( options );
-			
-		},
-		
-		// Shortcut to 'remove' via socket
-		socketRemove: function( model ){
-			
-			if( !options )
-				var options = {};
-			
-			options.method = 'socket.io';
-			
-			return this.remove( model, options );
-			
 		}
 		
 	});
@@ -284,14 +224,12 @@
 	// Useful when interfacing with server-side languages like **PHP** that make
 	// it difficult to read the body of `PUT` requests.
 	Backbone.sync = function(method, model, options) {
-		var type = methodMap[method];console.log( 'sync', arguments );
+		var type = methodMap[method];
 
 		// Default options, unless specified.
 		options || (options = {});
 		
 		if( options.method === 'socket.io' ){
-			
-			console.log( 'sync with socket.io', method, model, options );
 			
 			// Default Socket request options
 			var params = {};
@@ -303,12 +241,11 @@
 			// Set a unique ID to for triggering callbacks
 			
 			params = _( params ).extend( options );
-			console.log( method );
+			
 			if( method === 'create' ){
 				params.socket.emit( 'create', {
 					attributes: model.toJSON()
 				}, function( data ){
-					console.log( data );
 					if( data.errors && params.error )
 						params.error( data.errors );
 					else if( params.success )
@@ -319,7 +256,6 @@
 				params.socket.emit( 'read', {
 					id: params.id
 				}, function( data ){
-					console.log( data );
 					if( data.errors && params.error )
 						params.error( data.errors );
 					else if( params.success )
@@ -331,7 +267,6 @@
 					id: params.id,
 					attributes: model.toJSON()
 				}, function( data ){
-					console.log( data );
 					if( data.errors && params.error )
 						params.error( data.errors );
 					else if( params.success )
@@ -342,7 +277,6 @@
 				params.socket.emit( 'delete', {
 					id: params.id
 				}, function( data ){
-					console.log( data );
 					if( data.errors && params.error )
 						params.error( data.errors );
 					else if( params.success )
