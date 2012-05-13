@@ -55,11 +55,15 @@ io.configure( function(){
 	
 });
 
+var ROOM = 'test';
+
 // Simple messages collection
 var ids = 0;
 var messages = {};
 
-io.of('/messages').on( 'connection', function( socket ){
+io.of( '/messages' ).on( 'connection', function( socket ){
+	
+	socket.join( ROOM );
 	
 	socket.on( 'create', function( data, callback ){
 		
@@ -75,7 +79,7 @@ io.of('/messages').on( 'connection', function( socket ){
 			return callback( errors );
 		
 		callback( data );
-		io.of('/messages').emit( 'create', data );
+		io.of('/messages').in( ROOM ).emit( 'create', data );
 		
 	});
 	
@@ -113,7 +117,7 @@ io.of('/messages').on( 'connection', function( socket ){
 		message = data.attributes;
 		
 		callback( data );
-		io.of('/messages').emit( 'update', data );
+		io.of('/messages').in( ROOM ).emit( 'update', data );
 		
 	});
 	
@@ -126,7 +130,35 @@ io.of('/messages').on( 'connection', function( socket ){
 		delete messages[id];
 		
 		callback( data );
-		io.of('/messages').emit( 'delete', data );
+		io.of('/messages').in( ROOM ).emit( 'delete', data );
+		
+	});
+	
+});
+
+var room = {
+	title: 'test room',
+	subtitle: 'test subtitle'
+};
+
+io.of( '/room' ).on( 'connection', function( socket ){
+	
+	socket.join( ROOM );
+	
+	socket.on( 'read', function( data, callback ){
+		
+		data.attributes = room;
+		
+		callback( data );
+		
+	});
+	
+	socket.on( 'update', function( data, callback ){
+		
+		room = data.attributes;
+		
+		callback( data );
+		io.of( '/messages' ).in( ROOM ).emit( 'update', data );
 		
 	});
 	

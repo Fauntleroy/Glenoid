@@ -5,6 +5,9 @@ var sockets = {};
 sockets.messages = io.connect( SOCKET_SERVER +'/messages', {
 	port: SOCKET_PORT
 });
+sockets.room = io.connect( SOCKET_SERVER +'/room', {
+	port: SOCKET_PORT
+});
 
 var Messages = Glenoid.Collection.extend({
 	
@@ -16,4 +19,15 @@ var Messages = Glenoid.Collection.extend({
 	
 })
 
+var Room = Glenoid.Model.extend({
+	
+	initialize: function(){
+		
+		this.setSocket( sockets.room );
+		
+	}
+	
+});
+
 var messages = new Messages;
+var room = new Room;
